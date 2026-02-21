@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import DonateItem from './pages/DonateItem';
 import BrowseItems from './pages/BrowseItems';
 import MyRequests from './pages/MyRequests';
+import MyDonations from './pages/MyDonations';
 import Admin from './pages/Admin';
 import Coordinator from './pages/Coordinator';
 
@@ -61,6 +62,18 @@ export default function App() {
             <AuthenticatedLayout>
               <Container maxWidth="lg">
                 <BrowseItems />
+              </Container>
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-donations"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <Container maxWidth="lg">
+                <MyDonations />
               </Container>
             </AuthenticatedLayout>
           </ProtectedRoute>

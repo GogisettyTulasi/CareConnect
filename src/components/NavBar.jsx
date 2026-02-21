@@ -20,6 +20,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import BrowseIcon from '@mui/icons-material/Storefront';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -27,11 +28,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../context/AuthContext';
 
 const APP_NAME = 'CareConnect';
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { path: '/donate', label: 'Donate', icon: <AddCircleOutlineIcon /> },
   { path: '/browse', label: 'Browse Items', icon: <BrowseIcon /> },
-  { path: '/my-requests', label: 'My Requests', icon: <RequestPageIcon /> },
 ];
+const MY_DONATIONS_ITEM = { path: '/my-donations', label: 'My Donations', icon: <Inventory2Icon /> };
+const MY_REQUESTS_ITEM = { path: '/my-requests', label: 'My Requests', icon: <RequestPageIcon /> };
 
 export default function NavBar() {
   const navigate = useNavigate();
@@ -40,6 +42,8 @@ export default function NavBar() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user, logout, isAdmin, isCoordinator } = useAuth();
+  const isNormalUser = !isAdmin && !isCoordinator;
+  const navItems = [...BASE_NAV_ITEMS, ...(isNormalUser ? [MY_DONATIONS_ITEM] : []), MY_REQUESTS_ITEM];
 
   const handleNav = (path) => {
     navigate(path);
@@ -55,7 +59,7 @@ export default function NavBar() {
   const navContent = (
     <>
       <List sx={{ pt: 2 }}>
-        {NAV_ITEMS.map(({ path, label, icon }) => (
+        {navItems.map(({ path, label, icon }) => (
           <ListItem key={path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={location.pathname === path}
@@ -156,7 +160,7 @@ export default function NavBar() {
           <Box sx={{ flexGrow: 1 }} />
           {/* Desktop nav - hidden on mobile */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5 }}>
-            {NAV_ITEMS.map(({ path, label }) => (
+            {navItems.map(({ path, label }) => (
               <Button
                 key={path}
                 color="inherit"

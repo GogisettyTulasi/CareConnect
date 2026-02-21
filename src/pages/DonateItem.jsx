@@ -20,7 +20,6 @@ export default function DonateItem() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess(false);
     if (!title.trim()) {
       setError('Title is required');
       return;
@@ -44,7 +43,7 @@ export default function DonateItem() {
       setQuantity(1);
       setError('');
     } catch (err) {
-      const msg = err?.message?.toLowerCase().includes('network') ? 'Something went wrong. Please try again.' : (err?.message || 'Something went wrong. Please try again.');
+      const msg = (err?.message || '').toLowerCase().includes('network') ? 'Something went wrong. Please try again.' : (err?.message || 'Something went wrong. Please try again.');
       setError(msg);
       showError(msg);
     } finally {

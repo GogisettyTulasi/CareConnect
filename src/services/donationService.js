@@ -22,6 +22,15 @@ function getStoredUser() {
   }
 }
 
+function normalizeDonation(d) {
+  const requests = Array.isArray(d.requests) ? [...d.requests] : [];
+  if (d.reservedBy && requests.length === 0) {
+    requests.push({ userId: d.reservedBy, quantityRequested: 1 });
+  }
+  const { reservedBy, ...rest } = d;
+  return { ...rest, requests };
+}
+
 /**
  * GET /api/donations - list all donations.
  * On failure: load from localStorage (persisted across refresh).
@@ -29,16 +38,16 @@ function getStoredUser() {
 export const getDonations = async (params = {}) => {
   if (USE_MOCK) {
     await delay(300);
-    const list = getDonationsFromStorage();
+    const list = getDonationsFromStorage().map(normalizeDonation);
     return list.filter((d) => !params.status || d.status === params.status);
   }
   try {
     const { data } = await api.get(DONATIONS_BASE, { params });
-    return data;
+    return Array.isArray(data) ? data.map(normalizeDonation) : data;
   } catch (err) {
     if (isBackendUnavailable(err)) {
       await delay(200);
-      const list = getDonationsFromStorage();
+      const list = getDonationsFromStorage().map(normalizeDonation);
       return list.filter((d) => !params.status || d.status === params.status);
     }
     throw err;
@@ -58,7 +67,7 @@ export const createDonation = async (payload) => {
       id: nextId(),
       ...payload,
       donorId,
-      status: 'AVAILABLE',
+      requests: [],
       createdAt: new Date().toISOString(),
     };
     const list = getDonationsFromStorage();
@@ -78,7 +87,7 @@ export const createDonation = async (payload) => {
         id: nextId(),
         ...payload,
         donorId,
-        status: 'AVAILABLE',
+        requests: [],
         createdAt: new Date().toISOString(),
       };
       const list = getDonationsFromStorage();
@@ -151,16 +160,16 @@ export const getMyDonations = async () => {
   if (USE_MOCK) {
     await delay(200);
     const user = getStoredUser();
-    const list = getDonationsFromStorage();
+    const list = getDonationsFromStorage().map(normalizeDonation);
     return list.filter((d) => d.donorId === user?.id);
   }
   try {
     const { data } = await api.get(`${DONATIONS_BASE}/my`);
-    return data;
+    return Array.isArray(data) ? data.map(normalizeDonation) : data;
   } catch (err) {
     if (isBackendUnavailable(err)) {
       const user = getStoredUser();
-      const list = getDonationsFromStorage();
+      const list = getDonationsFromStorage().map(normalizeDonation);
       return list.filter((d) => d.donorId === user?.id);
     }
     throw err;
